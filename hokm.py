@@ -209,13 +209,63 @@ class Player:
 	def reset(self):
 		self.hands = 0
 
-	def throw(self):
-		print("You have to throw away three cards. You can enter multiple cards at once by separating them with spaces.")
-		t = input().lower().strip()
-		lst = t.split(" ")
+	def gn(self, n):
+		for c in self.cards:
+			if c.val == n:
+				return c
+		print("THIS SHOULD NEVER PRINT!")
+		return None
 
-		if len(lst) < 1:
-			print("You have to enter at least one card.")
+	def remove(self, c):
+		self.cards.remove(c)
+		print("Your new hand is:")
+		self.pc()
+		return c
+
+	def throw(self):
+		# lst = []
+		first = True
+		print("You have to throw away " + str(len(self.cards) - 3) + " cards.")
+		while len(self.cards) > 3:
+			if first:
+				first = False
+				print("You can enter multiple cards at once by separating them with spaces.")
+			t = input().lower().strip()
+			lst = t.split(" ")
+			if len(lst) < 1:
+				print("You have to enter at least one card. ", end="")
+				continue
+			if len(lst) > 3:
+				print("You have entered too many cards. ", end="")
+				continue
+			for i, l in enumerate(lst):
+				if len(l) > 2 or len(l) < 1 or not l[0].isdigit():
+					print("Your" + self.ntp(i) + "entry was not formatted correctly.")
+				elif len(l) == 1:
+					if self.numnum(int(l[0])) == 0:
+						print("You do not have a " + l[0] + " in your hand.")
+					elif self.numnum(int(l[0])) > 1:
+						print("You have more than one " + l[0] + " in your hand.")
+						print("Please enter a suit when this is the case.")
+					else:
+						self.remove(self.gn(int(l[0])))
+				else:
+					if l[1].isdigit() or l[1] not in cte.keys():
+						print("Your" + self.ntp(i) + "entry was not formatted correctly.")
+					else:
+						c = Card(cte[l[1]], int(l[0]))
+						if self.hascard(c):
+							self.remove(c)
+						else:
+							print("You do not have a " + l + " in your hand.")
+
+	def ntp(self, n):
+		if n == 0:
+			return " first "
+		if n == 1:
+			return " second "
+		if n == 2:
+			return " third "
 
 	def hassuit(self, s):
 		suit = cte[s]
@@ -230,6 +280,28 @@ class Player:
 			if c.val == x.val and c.suit == x.suit:
 				return True
 		return False
+
+	def numnum(self, n):
+		x = 0
+		for c in self.cards:
+			if c.val == n:
+				x += 1
+		return x
+
+	def numsuit(self, s):
+		x = 0
+		suit = cte[s]
+		for c in self.cards:
+			if c.suit == suit:
+				x += 1
+		return x
+
+	def hasnum(self, n):
+		for c in self.cards:
+			if c.val == n:
+				return True
+		return False
+
 
 
 	def win(self):
@@ -279,7 +351,18 @@ class Player:
 			print(str(list(sc))[1:len(str(list(sc))) - 1])
 			x = input("What suit do you want to be Hokm...").lower().strip()
 		#get suit using char (dictionary)
+		print("Got it! Hokm will be" + self.gfn(x) + cte[x] + ".")
 		game.setHokm(x)
+
+	def gfn(self, s):
+		if s == "s":
+			return " Spades "
+		if s == "h":
+			return " Hearts "
+		if s == "c":
+			return " Clovers "
+		if s == "d":
+			return " Diamonds "
 
 
 
@@ -297,7 +380,7 @@ def info():
 	print("Welcome to Brandon's Two-Player Hokm!")
 	print("-------------------------------------")
 	print("How To Play:")
-	print("'6c' means you want to play a 6 of Clovers. The same goes for Spades, Hearts, and Diamonds.")
+	print("'6c' means you want to play a 6 of Clovers. The same goes for Spades, Hearts, and Diamonds, using 's', 'h', and 'd,' respectively.")
 	print("If you have only one 6 in your hand, you can simply enter '6' and that card will be played.")
 	input("Press enter once you understand how to play a card...")
 
