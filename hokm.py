@@ -7,12 +7,7 @@ etc = {"\u2663": "c", "\u2660": "s", "\u2665": "h", "\u2666": "d"}
 cte = {"c": "\u2663", "s": "\u2660", "h": "\u2665", "d": "\u2666"}
 
 class Game:
-	hio = "" #boolean
-	p1 = "" #Player
-	p2 = "" #Player
-	deck = "" #Deck
-	r = 0 #round number
-	hokm = "" #String
+	hio = True
 
 	def __init__(self, p1, p2, deck):
 		self.p1 = p1
@@ -59,14 +54,15 @@ class Game:
 			if c.val == 14:
 				break
 			# time.sleep(.65)
-			p(3)
+			p(4)
 			x += 1
 		print("Our first Ace! ", end="")
-		self.hio = (x % 2 == 0)
+		self.hio = x % 2 == 0
 		if self.hio:
 			print(self.p1.name + " will be the first Hakem.")
 		else:
 			print(self.p2.name + " will be the first Hakem.")
+		return x % 2 == 0
 
 	def sethio(self, b):
 		self.hio = b
@@ -146,10 +142,6 @@ class Deck:
 
 
 class Card:
-	suit = ""
-	val = 0
-	c = ""
-
 	def __init__(self, suit, val):
 		self.suit = suit
 		self.val = val
@@ -163,6 +155,14 @@ class Card:
 			self.c = "K"
 		elif val == 14:
 			self.c = "A"
+	def __eq__(self, other):
+	    if isinstance(other, self.__class__):
+	        if self.c == other.c and self.suit == other.suit:
+	        	return True
+	        else:
+	        	return False
+	    else:
+	    	return False
 
 	def __str__(self):
 		return self.c + self.suit
@@ -198,9 +198,6 @@ class Card:
 		ul("   |")
 
 class Player:
-	cards, name = [], ""
-	hands = games = 0
-
 	def __init__(self, name):
 		self.name = name
 		self.hands = self.games = 0
@@ -225,8 +222,10 @@ class Player:
 	def throw(self):
 		# lst = []
 		first = True
-		print("You have to throw away " + str(len(self.cards) - 3) + " cards.")
 		while len(self.cards) > 3:
+			if not first:
+				print("Remember: ", end="")
+			print("You have to throw away " + str(len(self.cards) - 3) + " cards.")
 			if first:
 				first = False
 				print("You can enter multiple cards at once by separating them with spaces.")
@@ -248,6 +247,8 @@ class Player:
 						print("You have more than one " + l[0] + " in your hand.")
 						print("Please enter a suit when this is the case.")
 					else:
+						c = self.gn(int(l[0]))
+						print("Your " + str(c) + " will be deleted.")
 						self.remove(self.gn(int(l[0])))
 				else:
 					if l[1].isdigit() or l[1] not in cte.keys():
@@ -255,6 +256,7 @@ class Player:
 					else:
 						c = Card(cte[l[1]], int(l[0]))
 						if self.hascard(c):
+							print("Your " + str(c) + " will be deleted.")
 							self.remove(c)
 						else:
 							print("You do not have a " + l + " in your hand.")
@@ -274,8 +276,8 @@ class Player:
 				return True
 		return False
 
-	def hascard(self, s):
-		x = Card(cte[s[1]], s[0])
+	def hascard(self, x):
+		# x = Card(cte[s[1]], int(s[0]))
 		for c in self.cards:
 			if c.val == x.val and c.suit == x.suit:
 				return True
@@ -302,8 +304,6 @@ class Player:
 				return True
 		return False
 
-
-
 	def win(self):
 		self.games += 1
 
@@ -317,10 +317,10 @@ class Player:
 		if len(self.cards) == 0:
 			print("You do not have any cards.")
 			return
-		print(self.name + ", here are your cards:")
 		if len(self.cards) == 0:
 			self.cards[0].printfull()
 			return
+		print(self.name + ", here are your cards:")
 		for _ in self.cards:
 			ulnl("      ")
 			print("  ", end="")
@@ -342,8 +342,6 @@ class Player:
 
 	# def handle(self, s):
 
-
-
 	def ch(self, game):
 		x = input("What suit do you want to be Hokm...").lower().strip()
 		while len(x) != 1 or x not in sc:
@@ -351,20 +349,20 @@ class Player:
 			print(str(list(sc))[1:len(str(list(sc))) - 1])
 			x = input("What suit do you want to be Hokm...").lower().strip()
 		#get suit using char (dictionary)
-		print("Got it! Hokm will be" + self.gfn(x) + cte[x] + ".")
+		print("Got it! Hokm will be" + gfn(x) + cte[x] + ".")
 		game.setHokm(x)
 
-	def gfn(self, s):
-		if s == "s":
-			return " Spades "
-		if s == "h":
-			return " Hearts "
-		if s == "c":
-			return " Clovers "
-		if s == "d":
-			return " Diamonds "
+	
 
-
+def gfn(s):
+	if s == "s":
+		return " Spades "
+	if s == "h":
+		return " Hearts "
+	if s == "c":
+		return " Clovers "
+	if s == "d":
+		return " Diamonds "
 
 def ul(*args, **kwargs):
 	print("\033[4m"+args[0]+"\033[0m")
@@ -396,16 +394,22 @@ def start():
 			print(g.hakem().name + " is the Hakem for round " + str(g.rn()))
 		print("Let's begin!")
 		g.lego()
+		print(g.hio)
+		print(g.hio)
+		print(g.hio)
+		print(g.hio)
+		print(g.hio)
 		print(g.nonhak().name + ", please look away.")
 		input(g.hakem().name + ", press enter to show your cards...")
 		g.hakem().pc()
 		g.hakem().ch(g)
-		g.p1.throw()
-		p(45)
+		g.hakem().throw()
+		p(60)
 		print(g.hakem().name + ", please look away.")
 		input(g.nonhak().name + ", press enter to show your cards...")
-		g.p2.throw()
-		p(45)
+		g.nonhak().pc()
+		g.nonhak().throw()
+		p(60)
 		# g.distribute()
 		break
 
