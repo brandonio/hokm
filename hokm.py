@@ -5,6 +5,7 @@ sc = ["s", "c", "d", "h"]
 
 etc = {"\u2663": "c", "\u2660": "s", "\u2665": "h", "\u2666": "d"}
 cte = {"c": "\u2663", "s": "\u2660", "h": "\u2665", "d": "\u2666"}
+lets = ["a", "k", "q", "j", "x"]
 
 class Game:
 	hio = True
@@ -219,6 +220,19 @@ class Player:
 		self.pc()
 		return c
 
+	def getint(self, s):
+		if "x" in s:
+			return 10
+		if "a" in s:
+			return 14
+		if "k" in s:
+			return 13
+		if "q" in s:
+			return 12
+		if "j" in s:
+			return 11
+		return int(s)
+
 	def throw(self):
 		# lst = []
 		first = True
@@ -230,6 +244,8 @@ class Player:
 				first = False
 				print("You can enter multiple cards at once by separating them with spaces.")
 			t = input().lower().strip()
+			t = t.replace("x", "")
+			t = t.replace("10", "x")
 			lst = t.split(" ")
 			if len(lst) < 1:
 				print("You have to enter at least one card. ", end="")
@@ -237,24 +253,28 @@ class Player:
 			if len(lst) > 3:
 				print("You have entered too many cards. ", end="")
 				continue
+			if len(self.cards) - len(lst) < 3:
+				print("You are trying to throw away too many cards. ", end="")
+				continue
 			for i, l in enumerate(lst):
-				if len(l) > 2 or len(l) < 1 or not l[0].isdigit():
+				val = self.getint(l[0])
+				if len(l) > 2 or len(l) < 1 or not (l[0].isdigit() or l[0] in lets):
 					print("Your" + self.ntp(i) + "entry was not formatted correctly.")
 				elif len(l) == 1:
-					if self.numnum(int(l[0])) == 0:
-						print("You do not have a " + l[0] + " in your hand.")
-					elif self.numnum(int(l[0])) > 1:
-						print("You have more than one " + l[0] + " in your hand.")
-						print("Please enter a suit when this is the case.")
+					if self.numnum(val) == 0:
+						print("You do not have a " + str(val) + " in your hand.")
+					elif self.numnum(val) > 1:
+						print("You have more than one " + str(val) + " in your hand.")
+						print("Please enter a value AND a suit when this is the case.")
 					else:
-						c = self.gn(int(l[0]))
+						c = self.gn(val)
 						print("Your " + str(c) + " will be deleted.")
-						self.remove(self.gn(int(l[0])))
+						self.remove(c)
 				else:
 					if l[1].isdigit() or l[1] not in cte.keys():
 						print("Your" + self.ntp(i) + "entry was not formatted correctly.")
 					else:
-						c = Card(cte[l[1]], int(l[0]))
+						c = Card(cte[l[1]], val)
 						if self.hascard(c):
 							print("Your " + str(c) + " will be deleted.")
 							self.remove(c)
@@ -404,12 +424,14 @@ def start():
 		g.hakem().pc()
 		g.hakem().ch(g)
 		g.hakem().throw()
-		p(60)
+		input("Press enter when you are done...")
+		p(62)
 		print(g.hakem().name + ", please look away.")
 		input(g.nonhak().name + ", press enter to show your cards...")
 		g.nonhak().pc()
 		g.nonhak().throw()
-		p(60)
+		input("Press enter when you are done...")
+		p(62)
 		# g.distribute()
 		break
 
